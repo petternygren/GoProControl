@@ -1,23 +1,7 @@
 /*
-- Användning
+GoPro8266.h - Arduino -> GoPro interface via http and udp.
 
--- Custom lib
-Skapa Arduino/libraries/GoPro8266/
-                                  - GoPro8266.h
-                                  - GoPro8266.cpp
-
--- Exempelkod
-#include "GoPro8266.h"
-
-GoPro8266 gp("GOPRONAME", "GOPROPASS", "10.5.5.9", 9);
-
-void setup() {
-  gp.connect();
-}
-
-void loop() {
-  delay(500);
-}
+Feel free to copy/modify or do whatever you like with his pice of code.
 */
 
 #ifndef GoPro8266_h
@@ -35,6 +19,8 @@ class GoPro8266
     
     bool connect();
     bool status();
+    bool videoModeOn();
+    bool videoModeOff();
     bool trigger();
     bool stop();
     bool sleep();

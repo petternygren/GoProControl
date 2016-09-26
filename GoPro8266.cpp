@@ -87,8 +87,12 @@ bool GoPro8266::status() {
   return httpGET("http://" + String(_GoProIP) + "/gp/gpControl/status");
 }
 
-bool GoPro8266::sleep() {
-  return httpGET("http://" + String(_GoProIP) + "/gp/gpControl/command/system/sleep");
+bool GoPro8266::videoModeOn() {
+  return httpGET("http://" + String(_GoProIP) + "/gp/gpControl/setting/10/1");
+}
+
+bool GoPro8266::videoModeOff() {
+  return httpGET("http://" + String(_GoProIP) + "/gp/gpControl/setting/10/0");
 }
 
 bool GoPro8266::trigger() {
@@ -97,4 +101,8 @@ bool GoPro8266::trigger() {
 
 bool GoPro8266::stop() {
   return httpGET("http://" + String(_GoProIP) + "/gp/gpControl/command/shutter?p=0");
+}
+
+bool GoPro8266::sleep() {
+  return httpGET("http://" + String(_GoProIP) + "/gp/gpControl/command/system/sleep");
 }
