@@ -16,12 +16,15 @@ GoProControl::GoProControl(char* ssid, char* password, char* GoProIP, int GoProP
 bool GoProControl::connect() {
   //Anslut till GoPro hotspot
     
+#ifdef WiFi101
+  WiFi.setPins(8,7,4,2);
+#endif
   WiFi.begin(_ssid, _password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     if (_debug) {
-      Serial.println("Trying to connect, current status: ");
-      Serial.print(WiFi.status());
+      Serial.print("Trying to connect, current status: ");
+      Serial.println(WiFi.status());
       }
     }
   if (WiFi.status() == WL_CONNECTED) {
@@ -55,6 +58,7 @@ void GoProControl::wake() {
     //6 Bytes with 0xFF
     for (int i=0;i<6;i++)
         magicP[i] = 0xff;
+        if (_debug) {Serial.println("InSide UDP magicPackage loop");}
     
     udp.beginPacket(_GoProIP, _GoProPort);
     udp.write(magicP);
@@ -66,15 +70,20 @@ void GoProControl::wake() {
   }
 }
 
+#ifdef WiFi8266
 bool GoProControl::httpGET(String url) {
   //Skicka GET request via http
   
-  HTTPClient http;
-  http.begin(url);
+  int httpCode = 0;
+  HTTPClient client;
+  client.begin(url);
 
-  int httpCode = http.GET();
-  http.end();
-
+  while (httpCode == 0) {
+    httpCode = client.GET();
+    if (_debug) {Serial.println("Waiting for http response");}
+    delay(100);
+  }
+  client.end();
   if (httpCode == 200) {
     return true;
   }
@@ -82,13 +91,29 @@ bool GoProControl::httpGET(String url) {
     return false;
   }
 }
+#endif
+
+#ifdef WiFi101
+bool GoProControl::httpGET(String url) {
+  WiFiClient client;
+  if (client.connect((10,5,5,9), 80)) {
+  Serial.println("connected to server");
+  // Make a HTTP request:
+  client.println("GET /gp/gpControl/command/system/sleep HTTP/1.1");
+  client.println("Host: http://10.5.5.9");
+  client.println("Connection: close");
+  client.println();
+  }
+  return true;
+}
+#endif
 
 bool GoProControl::status() {
   return httpGET("http://" + String(_GoProIP) + "/gp/gpControl/status");
 }
 
 bool GoProControl::videoModeOn() {
-  return httpGET("http://" + String(_GoProIP) + "/gp/gpControl/setting/10/1");
+  return httpGET("http://" + String(_GoProIP) + "/gp/gpControl/command/sub_mode?mode=0&sub_mode=0");
 }
 
 bool GoProControl::videoModeOff() {
