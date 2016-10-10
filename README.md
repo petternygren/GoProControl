@@ -1,10 +1,12 @@
-# GoPro8266
-Header giving basic functionality for controling a GoPro4 with the "Adafruit Feather HUZZAH ESP8266".
+# GoProControl
+Header giving basic functionality for controling a GoPro4 with the "Adafruit Feather HUZZAH ESP8266" or 
+"Adafruit Feather M0 wifi"
 Interfacing via the GoPro built in hotspot and utilising the GoPro REST(ish) api: https://github.com/KonradIT/goprowifihack.
 
 ## How
 The code are compiled with the arduino IDE. Follow this guide to get it set up:
 https://learn.adafruit.com/adafruit-feather-huzzah-esp8266/using-arduino-ide
+https://learn.adafruit.com/adafruit-feather-m0-basic-proto/using-with-arduino-ide
 
 * Creating a custom lib for arduino is done by creating a new folder @ Arduino/libraries/[some_folder]
 
@@ -16,7 +18,7 @@ https://learn.adafruit.com/adafruit-feather-huzzah-esp8266/using-arduino-ide
 Use case for recoding 5 seconds of video every 1 minute:
 
 ```cpp
-#include "GoPro8266.h"
+#include "GoProControl.h"
 
 GoPro8266 gp("GOPRONAME", "GOPROPASS", "10.5.5.9", 9, true); //Initialize with debug mode active (will give some info in serial out).
 bool connected;

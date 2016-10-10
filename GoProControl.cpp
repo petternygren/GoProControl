@@ -1,6 +1,6 @@
-#include "GoPro8266.h"
+#include "GoProControl.h"
 
-GoPro8266::GoPro8266(char* ssid, char* password, char* GoProIP, int GoProPort, bool debug) {
+GoProControl::GoProControl(char* ssid, char* password, char* GoProIP, int GoProPort, bool debug) {
     _ssid      = ssid;
     _password  = password;
     _GoProIP   = GoProIP;
@@ -13,7 +13,7 @@ GoPro8266::GoPro8266(char* ssid, char* password, char* GoProIP, int GoProPort, b
     }
 }
 
-bool GoPro8266::connect() {
+bool GoProControl::connect() {
   //Anslut till GoPro hotspot
     
   WiFi.begin(_ssid, _password);
@@ -34,7 +34,7 @@ bool GoPro8266::connect() {
   }
 }
 
-void GoPro8266::wake() {
+void GoProControl::wake() {
   //Skickar WakeOnLan(wol) signal
 
   WiFiUDP udp; //wol skickas via UDP
@@ -66,7 +66,7 @@ void GoPro8266::wake() {
   }
 }
 
-bool GoPro8266::httpGET(String url) {
+bool GoProControl::httpGET(String url) {
   //Skicka GET request via http
   
   HTTPClient http;
@@ -83,26 +83,26 @@ bool GoPro8266::httpGET(String url) {
   }
 }
 
-bool GoPro8266::status() {
+bool GoProControl::status() {
   return httpGET("http://" + String(_GoProIP) + "/gp/gpControl/status");
 }
 
-bool GoPro8266::videoModeOn() {
+bool GoProControl::videoModeOn() {
   return httpGET("http://" + String(_GoProIP) + "/gp/gpControl/setting/10/1");
 }
 
-bool GoPro8266::videoModeOff() {
+bool GoProControl::videoModeOff() {
   return httpGET("http://" + String(_GoProIP) + "/gp/gpControl/setting/10/0");
 }
 
-bool GoPro8266::trigger() {
+bool GoProControl::trigger() {
   return httpGET("http://" + String(_GoProIP) + "/gp/gpControl/command/shutter?p=1");
 }
 
-bool GoPro8266::stop() {
+bool GoProControl::stop() {
   return httpGET("http://" + String(_GoProIP) + "/gp/gpControl/command/shutter?p=0");
 }
 
-bool GoPro8266::sleep() {
+bool GoProControl::sleep() {
   return httpGET("http://" + String(_GoProIP) + "/gp/gpControl/command/system/sleep");
 }
