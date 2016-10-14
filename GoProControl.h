@@ -6,13 +6,12 @@ Feel free to copy/modify or do whatever you like with his pice of code.
 
 #ifndef GoProControl_h
 #define GoProControl_h
-#define WiFi8266
+#define WiFi101
 
 #include "Arduino.h"
 #ifdef WiFi101
   #include <WiFi101.h>
   #include <WiFiUdp.h>
-  #include <HttpClient.h>
 #endif
 #ifdef WiFi8266
   #include <ESP8266WiFi.h>
