@@ -9,7 +9,13 @@ GoProControl::GoProControl(char* ssid, char* password, char* GoProIP, int GoProP
 
     if (_debug) {
       //Om debug är true aktiveras debug/info utskrifter
+      #ifdef WiFi101
+      Serial.begin(9600);
+      #endif // WiFi101
+      #ifdef WiFi8266
       Serial.begin(115200);
+      #endif // WiFi8266
+      
     }
 }
 
@@ -76,11 +82,13 @@ bool GoProControl::httpGET(String url) {
   
   int httpCode = 0;
   HTTPClient client;
-  client.begin(url);
+  client.begin("http://" + String(_GoProIP) + url);
 
-  while (httpCode == 0) {
+  while (httpCode < 1 || httpCode == 500) {
     httpCode = client.GET();
-    if (_debug) {Serial.println("Waiting for http response");}
+    if (_debug) {
+      Serial.print(url+" ");
+      Serial.println(httpCode);}
     delay(100);
   }
   client.end();
@@ -96,36 +104,40 @@ bool GoProControl::httpGET(String url) {
 #ifdef WiFi101
 bool GoProControl::httpGET(String url) {
   WiFiClient client;
-  if (client.connect((10,5,5,9), 80)) {
+  if (client.connect("10.5.5.9", 80)) {
   Serial.println("connected to server");
   // Make a HTTP request:
-  client.println("GET /gp/gpControl/command/system/sleep HTTP/1.1");
-  client.println("Host: http://10.5.5.9");
+  client.println("GET " + url + " HTTP/1.1");
+  client.println("Host: 10.5.5.9");
   client.println("Connection: close");
   client.println();
+  }
+  while(client.available()){
+    bool c = client.find("200 OK"); //Möjlig väg för att kunna plocka ut svarskoden?
+    Serial.println(c);
   }
   return true;
 }
 #endif
 
 bool GoProControl::status() {
-  return httpGET("http://" + String(_GoProIP) + "/gp/gpControl/status");
+  return httpGET("/gp/gpControl/status");
 }
 
 bool GoProControl::videoModeOn() {
-  return httpGET("http://" + String(_GoProIP) + "/gp/gpControl/command/sub_mode?mode=0&sub_mode=0");
+  return httpGET("/gp/gpControl/command/sub_mode?mode=0&sub_mode=0");
 }
 
 bool GoProControl::videoModeOff() {
-  return httpGET("http://" + String(_GoProIP) + "/gp/gpControl/setting/10/0");
+  return httpGET("/gp/gpControl/setting/10/0");
 }
 
 bool GoProControl::trigger() {
-  return httpGET("http://" + String(_GoProIP) + "/gp/gpControl/command/shutter?p=1");
+  return httpGET("/gp/gpControl/command/shutter?p=1");
 }
 
 bool GoProControl::stop() {
-  return httpGET("http://" + String(_GoProIP) + "/gp/gpControl/command/shutter?p=0");
+  return httpGET("/gp/gpControl/command/shutter?p=0");
 }
 
 bool GoProControl::sleep() {
