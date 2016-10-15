@@ -107,11 +107,11 @@ bool GoProControl::httpGET(String url) {
 #ifdef WiFi101
 bool GoProControl::httpGET(String url) {
   WiFiClient client;
-  if (client.connect("10.5.5.9", 80)) {
+  if (client.connect(String(_GoProIP), 80)) {
   Serial.println("connected to server");
   // Make a HTTP request:
   client.println("GET " + url + " HTTP/1.1");
-  client.println("Host: 10.5.5.9");
+  client.println("Host: " + String(_GoProIP));
   client.println("Connection: close");
   client.println();
   }
