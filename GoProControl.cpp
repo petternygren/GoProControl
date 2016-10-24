@@ -14,6 +14,7 @@ GoProControl::GoProControl(char* ssid, char* password, char* GoProIP, int GoProP
       //Om debug är true aktiveras debug/info utskrifter
       #ifdef WiFi101
       Serial.begin(9600);
+      while (!Serial);
       #endif // WiFi101
       #ifdef WiFi8266
       Serial.begin(115200);
@@ -129,8 +130,8 @@ bool GoProControl::httpGET(String url) {
     }
     while(client.available()){
       if (_debug) {Serial.println('Receiving header');}
-      const char *c = reinterpret_cast<const char*>(client.read());
-      strcat(responseHeader, c);
+      String c = client.readString();
+      strcat(responseHeader, c.c_str());
     }
     if (strstr(responseHeader, "HTTP/1.1 200") != NULL) {
       if (_debug) {Serial.println(responseHeader);}
