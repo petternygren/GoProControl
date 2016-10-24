@@ -9,7 +9,6 @@ Feel free to copy/modify or do whatever you like with his pice of code.
 #define WiFi101
 
 #include "Arduino.h"
-#include <string.h>
 #ifdef WiFi101
   #include <WiFi101.h>
   #include <WiFiUdp.h>
