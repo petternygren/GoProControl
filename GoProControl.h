@@ -9,6 +9,7 @@ Feel free to copy/modify or do whatever you like with his pice of code.
 #define WiFi101
 
 #include "Arduino.h"
+#include <string.h>
 #ifdef WiFi101
   #include <WiFi101.h>
   #include <WiFiUdp.h>
@@ -41,6 +42,9 @@ class GoProControl
     const char* _GoProIP;
     int         _GoProPort;
     bool        _debug;
+    #ifdef WiFi101
+      WiFiClient client;
+    #endif
 };
 
 #endif
