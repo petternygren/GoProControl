@@ -81,11 +81,14 @@ bool GoProControl::httpGET(String url) {
   //Skicka GET request via http
   
   int httpCode = 0;
+  int requestTryCounter = 0;
   HTTPClient client;
   client.begin("http://" + String(_GoProIP) + url);
 
-  while (httpCode < 1 || httpCode == 500) {
+  while (httpCode != 200 || requestTryCounter < 20) {
+    // Försöker 20 gånger till till dess att requesten retunerar 200.
     httpCode = client.GET();
+    requestTryCounter++;
     if (_debug) {
       Serial.print(url+" ");
       Serial.println(httpCode);}
@@ -104,11 +107,11 @@ bool GoProControl::httpGET(String url) {
 #ifdef WiFi101
 bool GoProControl::httpGET(String url) {
   WiFiClient client;
-  if (client.connect("10.5.5.9", 80)) {
+  if (client.connect(String(_GoProIP), 80)) {
   Serial.println("connected to server");
   // Make a HTTP request:
   client.println("GET " + url + " HTTP/1.1");
-  client.println("Host: 10.5.5.9");
+  client.println("Host: " + String(_GoProIP));
   client.println("Connection: close");
   client.println();
   }
@@ -141,5 +144,5 @@ bool GoProControl::stop() {
 }
 
 bool GoProControl::sleep() {
-  return httpGET("http://" + String(_GoProIP) + "/gp/gpControl/command/system/sleep");
+  return httpGET("/gp/gpControl/command/system/sleep");
 }
