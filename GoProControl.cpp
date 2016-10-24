@@ -6,6 +6,9 @@ GoProControl::GoProControl(char* ssid, char* password, char* GoProIP, int GoProP
     _GoProIP   = GoProIP;
     _GoProPort = GoProPort;
     _debug     = debug;
+    #ifdef WiFi101
+      WiFiClient client;
+    #endif
 
     if (_debug) {
       //Om debug är true aktiveras debug/info utskrifter
@@ -106,20 +109,39 @@ bool GoProControl::httpGET(String url) {
 
 #ifdef WiFi101
 bool GoProControl::httpGET(String url) {
-  WiFiClient client;
-  if (client.connect(String(_GoProIP), 80)) {
-  Serial.println("connected to server");
-  // Make a HTTP request:
-  client.println("GET " + url + " HTTP/1.1");
-  client.println("Host: " + String(_GoProIP));
-  client.println("Connection: close");
-  client.println();
+  char responseHeader[500] = "";
+  int requestTryCounter = 0;
+  bool OKresponse = false;
+  
+  while (!OKresponse || requestTryCounter < 20) {
+    client.stop();
+    if (client.connect(_GoProIP, 80)) {
+    Serial.println("connected to server");
+    // Make a HTTP request:
+    client.println("GET " + url + " HTTP/1.1");
+    client.println("Host: " + String(_GoProIP));
+    client.println("Connection: close");
+    client.println();
+    }
+    while(!client.available()){
+      if (_debug) {Serial.println('Waiting for header');}
+      delay(50);
+    }
+    while(client.available()){
+      if (_debug) {Serial.println('Receiving header');}
+      const char *c = reinterpret_cast<const char*>(client.read());
+      strcat(responseHeader, c);
+    }
+    if (strstr(responseHeader, "HTTP/1.1 200") != NULL) {
+      if (_debug) {Serial.println(responseHeader);}
+      OKresponse = true;
+      return OKresponse;
+    }
+    else {
+      requestTryCounter++;
+      delay(100);
+      }
   }
-  while(client.available()){
-    bool c = client.find("200 OK"); //Möjlig väg för att kunna plocka ut svarskoden?
-    Serial.println(c);
-  }
-  return true;
 }
 #endif
 
