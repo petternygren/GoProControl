@@ -6,6 +6,9 @@ GoProControl::GoProControl(char* ssid, char* password, char* GoProIP, int GoProP
     _GoProIP   = GoProIP;
     _GoProPort = GoProPort;
     _debug     = debug;
+    #ifdef WiFi101
+      WiFiClient client;
+    #endif
 
     if (_debug) {
       //Om debug är true aktiveras debug/info utskrifter
@@ -81,24 +84,17 @@ bool GoProControl::httpGET(String url) {
   //Skicka GET request via http
   
   int httpCode = 0;
-  int requestTryCounter = 0;
   HTTPClient client;
   client.begin("http://" + String(_GoProIP) + url);
 
-  while (httpCode != 200 || requestTryCounter < 20) {
-    // Försöker 20 gånger till till dess att requesten retunerar 200.
-    httpCode = client.GET();
-    requestTryCounter++;
-    if (_debug) {
-      Serial.print(url+" ");
-      Serial.println(httpCode);}
-    delay(100);
-  }
+  httpCode = client.GET();
   client.end();
   if (httpCode == 200) {
+    if (_debug) {Serial.println("OK response received");}
     return true;
   }
   else {
+    if (_debug) {Serial.println("BAD response received");}
     return false;
   }
 }
@@ -106,8 +102,10 @@ bool GoProControl::httpGET(String url) {
 
 #ifdef WiFi101
 bool GoProControl::httpGET(String url) {
-  WiFiClient client;
-  if (client.connect(String(_GoProIP), 80)) {
+  char responseHeader[500] = "";
+  
+  client.stop();
+  if (client.connect(_GoProIP, 80)) {
   Serial.println("connected to server");
   // Make a HTTP request:
   client.println("GET " + url + " HTTP/1.1");
@@ -115,11 +113,25 @@ bool GoProControl::httpGET(String url) {
   client.println("Connection: close");
   client.println();
   }
+  
+  while(!client.available()){
+      if (_debug) {Serial.println("Waiting for header");}
+      delay(50);
+      }
   while(client.available()){
-    bool c = client.find("200 OK"); //Möjlig väg för att kunna plocka ut svarskoden?
-    Serial.println(c);
+    if (_debug) {Serial.println("Receiving header");}
+    String c = client.readString();
+    strcat(responseHeader, c.c_str());
   }
-  return true;
+  if (_debug) {Serial.println(responseHeader);}
+  if (strstr(responseHeader, "HTTP/1.1 200") != NULL) {
+    if (_debug) {Serial.println("OK response received");}
+    return true;
+  }
+  else {
+    if (_debug) {Serial.println("BAD response received");}
+    return false;
+  }
 }
 #endif
 

@@ -41,6 +41,9 @@ class GoProControl
     const char* _GoProIP;
     int         _GoProPort;
     bool        _debug;
+    #ifdef WiFi101
+      WiFiClient client;
+    #endif
 };
 
 #endif
