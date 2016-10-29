@@ -31,6 +31,7 @@ class GoProControl
     bool trigger();
     bool stop();
     bool sleep();
+    bool Settings();
     void wake();
   
   private:

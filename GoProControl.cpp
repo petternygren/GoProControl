@@ -158,3 +158,17 @@ bool GoProControl::stop() {
 bool GoProControl::sleep() {
   return httpGET("/gp/gpControl/command/system/sleep");
 }
+
+bool GoProControl::Settings() {
+  int numberOfCommands = 2;
+  const char *commands[numberOfCommands]; // commands storlek måste matcha antalet anrop.
+  commands[0] = "command1";
+  commands[1] = "command2";
+  //... commands[n] = "commandn"
+
+  for (int i=0;i<numberOfCommands;i++) {
+    if (_debug) {Serial.println(commands[i]);}
+    if (!httpGET(commands[i])) {return false;} // Om requesten misslyckas avsluta loopen och retunera false.
+  }
+  return true; // Om alla requests retunerat 200.
+}
